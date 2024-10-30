@@ -9,6 +9,10 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class RewardAdsManager(
     private val context: Context
@@ -18,6 +22,14 @@ class RewardAdsManager(
     init {
         initialize()
     }
+
+    enum class AdsScreenState {
+        Show,
+        Dismiss
+    }
+
+    private val _state: MutableStateFlow<AdsScreenState> = MutableStateFlow(AdsScreenState.Dismiss)
+    val state: StateFlow<AdsScreenState> = _state.asStateFlow()
 
 
     private fun initialize() {
@@ -46,6 +58,7 @@ class RewardAdsManager(
             override fun onAdDismissedFullScreenContent() {
                 super.onAdDismissedFullScreenContent()
                 _rewardAds = null
+                _state.update { AdsScreenState.Dismiss }
             }
 
             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
@@ -63,6 +76,7 @@ class RewardAdsManager(
     }
 
     fun show(activity: Activity, callback: (RewardItem) -> Unit) {
+        _state.update { AdsScreenState.Show }
         _rewardAds?.show(activity) {
             callback(it)
         }
