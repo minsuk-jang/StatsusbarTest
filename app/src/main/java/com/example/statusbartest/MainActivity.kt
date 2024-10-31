@@ -1,6 +1,11 @@
 package com.example.statusbartest
 
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -22,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -30,15 +37,13 @@ import com.example.statusbartest.ui.theme.StatusbarTestTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            StatusbarTestTheme(darkTheme = false) {
-                val context = LocalContext.current
+            StatusbarTestTheme {
                 val navController = rememberNavController()
                 val rewardManager = remember {
-                    RewardAdsManager(context = context)
+                    RewardAdsManager(context = this)
                 }
-
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(navController = navController, startDestination = "home") {
@@ -49,7 +54,8 @@ class MainActivity : ComponentActivity() {
                                 statusBarStyle = SystemBarStyle.light(
                                     scrim = Color.Transparent.toArgb(),
                                     darkScrim = Color.Transparent.toArgb()
-                                )
+                                ),
+                                navigationBarStyle = SystemBarStyle.dark(Color.Black.toArgb())
                             )
 
                             HomeScreen(

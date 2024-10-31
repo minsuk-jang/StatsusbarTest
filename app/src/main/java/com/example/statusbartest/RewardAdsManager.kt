@@ -2,6 +2,16 @@ package com.example.statusbartest
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -46,6 +56,15 @@ class RewardAdsManager(
             override fun onAdDismissedFullScreenContent() {
                 super.onAdDismissedFullScreenContent()
                 _rewardAds = null
+
+                Handler(Looper.getMainLooper()).post {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        with(context as Activity) {
+                            window.statusBarColor = Color.Transparent.toArgb()
+                        }
+                    } else
+                        (context as Activity).window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                }
             }
 
             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
@@ -58,11 +77,25 @@ class RewardAdsManager(
 
             override fun onAdShowedFullScreenContent() {
                 super.onAdShowedFullScreenContent()
+
+                Handler(Looper.getMainLooper()).post {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        with(context as Activity) {
+                            window.statusBarColor = Color.White.toArgb()
+                        }
+                    } else {
+                        (context as Activity).window.setFlags(
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN
+                        )
+                    }
+                }
             }
         }
     }
 
     fun show(activity: Activity, callback: (RewardItem) -> Unit) {
+        _rewardAds?.setImmersiveMode(false)
         _rewardAds?.show(activity) {
             callback(it)
         }
