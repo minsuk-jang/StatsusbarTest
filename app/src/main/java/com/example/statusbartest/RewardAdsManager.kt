@@ -71,12 +71,12 @@ class RewardAdsManager(
 
             override fun onAdShowedFullScreenContent() {
                 super.onAdShowedFullScreenContent()
+                _state.update { AdsScreenState.Show }
             }
         }
     }
 
     fun show(activity: Activity, callback: (RewardItem) -> Unit) {
-        _state.update { AdsScreenState.Show }
         _rewardAds?.show(activity) {
             callback(it)
         }
